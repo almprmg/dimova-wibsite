@@ -2,162 +2,13 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Float, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { ArrowDown, Clock, Shield, CheckCircle } from "lucide-react";
-import { Suspense, useRef ,useEffect } from "react";
+import { Suspense, useRef } from "react";
 import { t } from "@/i18n/translations";
 import { toast } from "sonner";
 
 import {  RoundedBox } from "@react-three/drei";
 
-const Background3D = () => {
-  const canvasRef = useRef(null);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    let time = 0;
-    
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    const animate = () => {
-      time += 0.016;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Sphere
-      const sphereX = canvas.width * 0.3;
-      const sphereY = canvas.height * 0.6 + Math.sin(time * 2) * 30;
-      const sphereRadius = 100;
-      
-      ctx.save();
-      ctx.translate(sphereX, sphereY);
-      ctx.rotate(time * 0.5);
-      
-      const glowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, sphereRadius + 40);
-      glowGradient.addColorStop(0, '#2F6F65');
-      glowGradient.addColorStop(0.5, 'rgba(47, 111, 101, 0.5)');
-      glowGradient.addColorStop(1, 'rgba(47, 111, 101, 0)');
-      
-      ctx.beginPath();
-      ctx.arc(0, 0, sphereRadius + 40, 0, Math.PI * 2);
-      ctx.fillStyle = glowGradient;
-      ctx.fill();
-      
-      ctx.beginPath();
-      for (let i = 0; i <= 360; i += 10) {
-        const angle = (i * Math.PI) / 180;
-        const distort = Math.sin(angle * 4 + time * 3) * 10;
-        const r = sphereRadius + distort;
-        const x = Math.cos(angle) * r;
-        const y = Math.sin(angle) * r;
-        
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      
-      const sphereGradient = ctx.createRadialGradient(-20, -20, 0, 0, 0, sphereRadius);
-      sphereGradient.addColorStop(0, '#4fb3a0');
-      sphereGradient.addColorStop(0.7, '#2F6F65');
-      sphereGradient.addColorStop(1, '#1a4a42');
-      
-      ctx.fillStyle = sphereGradient;
-      ctx.fill();
-      ctx.restore();
-      
-      // Box
-      const boxX = canvas.width * 0.7;
-      const boxY = canvas.height * 0.4 + Math.sin(time * 2.5 + 1) * 35;
-      const boxSize = 90;
-      
-      ctx.save();
-      ctx.translate(boxX, boxY);
-      ctx.rotate(time * 0.7);
-      
-      const boxGlowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, boxSize + 50);
-      boxGlowGradient.addColorStop(0, '#C3B07A');
-      boxGlowGradient.addColorStop(0.5, 'rgba(195, 176, 122, 0.4)');
-      boxGlowGradient.addColorStop(1, 'rgba(195, 176, 122, 0)');
-      
-      ctx.beginPath();
-      ctx.arc(0, 0, boxSize + 50, 0, Math.PI * 2);
-      ctx.fillStyle = boxGlowGradient;
-      ctx.fill();
-      
-      ctx.beginPath();
-      const points = [];
-      for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI * 2) / 4;
-        const distort = Math.sin(time * 3 + i) * 8;
-        const size = boxSize + distort;
-        const x = Math.cos(angle) * size;
-        const y = Math.sin(angle) * size;
-        points.push({ x, y });
-      }
-      
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      
-      const boxGradient = ctx.createLinearGradient(-boxSize, -boxSize, boxSize, boxSize);
-      boxGradient.addColorStop(0, '#e8d5a0');
-      boxGradient.addColorStop(0.5, '#C3B07A');
-      boxGradient.addColorStop(1, '#a0906a');
-      
-      ctx.fillStyle = boxGradient;
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.moveTo(-boxSize * 0.5, -boxSize * 0.5);
-      ctx.lineTo(boxSize * 0.3, -boxSize * 0.5);
-      ctx.lineTo(-boxSize * 0.5, boxSize * 0.3);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fill();
-      
-      ctx.restore();
-      
-      // Particles
-      for (let i = 0; i < 20; i++) {
-        const px = (canvas.width / 20) * i + Math.sin(time + i) * 30;
-        const py = (canvas.height / 2) + Math.sin(time * 0.5 + i * 0.5) * 100;
-        const size = 2 + Math.sin(time + i) * 1;
-        
-        ctx.beginPath();
-        ctx.arc(px, py, size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(195, 176, 122, ${0.3 + Math.sin(time + i) * 0.2})`;
-        ctx.fill();
-      }
-      
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, []);
-  
-  return (
-    <canvas 
-      ref={canvasRef}
-      className="absolute inset-0 -z-10 pointer-events-none"
-    />
-  );
-};
+ 
 
 const Building3D = ({ holdUrl, holdDuration = 10000 }: { holdUrl?: string; holdDuration?: number }) => {
   const timerRef = useRef<number | null>(null);
@@ -327,10 +178,9 @@ const Hero3D = () => {
   ];
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-b from-card to-background overflow-hidden">
-      <Background3D />
+    <section className="relative min-h-screen overflow-hidden bg-transparent">
       <div className="container mx-auto px-4 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -427,7 +277,15 @@ const Hero3D = () => {
             transition={{ duration: 1, delay: 0.3 }}
             className="h-[380px] sm:h-[420px] md:h-[460px] lg:h-[520px] order-1 lg:order-2"
           >
-            <Canvas dpr={[1, 1.5]} camera={{ position: [5, 3, 5], fov: 45 }}>
+            <Canvas
+              dpr={[1, 1.5]}
+              gl={{ alpha: true }}
+              onCreated={({ gl }) => {
+                gl.setClearColor(0x000000, 0);
+              }}
+              camera={{ position: [5, 3, 5], fov: 45 }}
+              style={{ background: "transparent" }}
+            >
               <ambientLight intensity={isMobile ? 0.4 : 0.5} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
               <pointLight position={[-10, -10, -10]} intensity={0.5} color="#C3B07A" />
