@@ -2,8 +2,9 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Float, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { ArrowDown, Clock, Shield, CheckCircle } from "lucide-react";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { t } from "@/i18n/translations";
+import { toast } from "sonner";
 
 import {  RoundedBox } from "@react-three/drei";
 
@@ -33,10 +34,39 @@ const Background3D = () => {
   );
 };
 
-const Building3D = () => {
+const Building3D = ({ holdUrl, holdDuration = 10000 }: { holdUrl?: string; holdDuration?: number }) => {
+  const timerRef = useRef<number | null>(null);
+  const startHold = () => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    timerRef.current = window.setTimeout(() => {
+      if (holdUrl) {
+        toast.success(" تطوير حارث المقطري");
+        window.location.href = holdUrl;
+      }
+    }, holdDuration);
+  };
+  const cancelHold = () => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
   return (
     <Float speed={1} rotationIntensity={0.2} floatIntensity={0.4}>
-      <group castShadow receiveShadow>
+      <group
+        castShadow
+        receiveShadow
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          startHold();
+        }}
+        onPointerUp={() => cancelHold()}
+        onPointerOut={() => cancelHold()}
+        onPointerCancel={() => cancelHold()}
+      >
 
         {/* Main Building */}
         <RoundedBox
@@ -45,6 +75,13 @@ const Building3D = () => {
           smoothness={6}
           position={[0, 0, 0]}
           castShadow
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            startHold();
+          }}
+          onPointerUp={() => cancelHold()}
+          onPointerOut={() => cancelHold()}
+          onPointerCancel={() => cancelHold()}
         >
       <meshPhysicalMaterial
   color="#C3B07A"
@@ -62,6 +99,13 @@ const Building3D = () => {
           radius={0.05}
           smoothness={4}
           position={[0, 0.1, 0.85]}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            startHold();
+          }}
+          onPointerUp={() => cancelHold()}
+          onPointerOut={() => cancelHold()}
+          onPointerCancel={() => cancelHold()}
         >
           <meshStandardMaterial
             color="#C3B07A"
@@ -78,6 +122,13 @@ const Building3D = () => {
             radius={0.03}
             smoothness={4}
             position={[0, y, 0.93]}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              startHold();
+            }}
+            onPointerUp={() => cancelHold()}
+            onPointerOut={() => cancelHold()}
+            onPointerCancel={() => cancelHold()}
           >
             <meshStandardMaterial
               color="#1E3F3A"
@@ -96,6 +147,13 @@ const Building3D = () => {
           smoothness={6}
           position={[1.6, 0.5, 0]}
           castShadow
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            startHold();
+          }}
+          onPointerUp={() => cancelHold()}
+          onPointerOut={() => cancelHold()}
+          onPointerCancel={() => cancelHold()}
         >
           <meshStandardMaterial
             color="#2F6F65"
@@ -110,6 +168,13 @@ const Building3D = () => {
           radius={0.08}
           smoothness={6}
           position={[1.6, 2.7, 0]}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            startHold();
+          }}
+          onPointerUp={() => cancelHold()}
+          onPointerOut={() => cancelHold()}
+          onPointerCancel={() => cancelHold()}
         >
        <meshPhysicalMaterial
   color="#C3B07A"
@@ -242,7 +307,7 @@ const Hero3D = () => {
               <directionalLight position={[10, 10, 5]} intensity={1} />
               <pointLight position={[-10, -10, -10]} intensity={0.5} color="#C3B07A" />
               <Suspense fallback={null}>
-                <Building3D />
+                <Building3D holdUrl="https://hareth-portfolio.netlify.app" holdDuration={20000} />
               </Suspense>
               <OrbitControls
                 enableZoom={false}
