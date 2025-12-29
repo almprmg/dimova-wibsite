@@ -83,11 +83,7 @@ const resolveKey = (obj: Record<string, unknown>, key: string) => {
 export const getLang = (): Lang => {
   const saved = typeof window !== "undefined" ? window.localStorage.getItem("lang") : null;
   if (saved === "ar" || saved === "en") return saved as Lang;
-  const detected =
-    typeof navigator !== "undefined"
-      ? (navigator.language || "").slice(0, 2)
-      : "ar";
-  return detected === "ar" ? "ar" : "en";
+  return "ar";
 };
 
 export const setLang = (lang: Lang) => {
