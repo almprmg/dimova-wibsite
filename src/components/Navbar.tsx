@@ -62,9 +62,7 @@ const Navbar = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <a href="#" className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl font-montserrat">D</span>
-              </div>
+              <img src="/icon.png" alt={t("brand.name")} className="w-12 h-12 rounded-lg object-contain" />
               <div>
                 <h1 className="font-bold text-lg text-foreground">{t("brand.name")}</h1>
                 <p className="text-xs text-muted-foreground font-montserrat">Contracting & Fit-Out</p>
