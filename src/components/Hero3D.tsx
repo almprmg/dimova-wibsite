@@ -1,424 +1,105 @@
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, useTexture } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Float, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { ArrowDown, Clock, Shield, CheckCircle } from "lucide-react";
-import { Suspense, useRef, useMemo } from "react";
-import * as THREE from "three";
+import { Suspense } from "react";
 
-// Tree Component
-const Tree = ({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) => {
-  const trunkMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#5d4037"),
-    roughness: 0.9,
-    metalness: 0,
-  }), []);
+import {  RoundedBox } from "@react-three/drei";
 
-  const leavesMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#2d5a3d"),
-    roughness: 0.8,
-    metalness: 0,
-  }), []);
-
+const Building3D = () => {
   return (
-    <group position={position} scale={scale}>
-      {/* Trunk */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[0.06, 0.08, 0.6, 8]} />
-        <primitive object={trunkMaterial} attach="material" />
-      </mesh>
-      {/* Foliage layers */}
-      <mesh position={[0, 0.8, 0]}>
-        <coneGeometry args={[0.35, 0.6, 8]} />
-        <primitive object={leavesMaterial} attach="material" />
-      </mesh>
-      <mesh position={[0, 1.1, 0]}>
-        <coneGeometry args={[0.28, 0.5, 8]} />
-        <primitive object={leavesMaterial} attach="material" />
-      </mesh>
-      <mesh position={[0, 1.35, 0]}>
-        <coneGeometry args={[0.2, 0.4, 8]} />
-        <primitive object={leavesMaterial} attach="material" />
-      </mesh>
-    </group>
-  );
-};
+    <Float speed={1} rotationIntensity={0.2} floatIntensity={0.4}>
+      <group castShadow receiveShadow>
 
-// Palm Tree Component
-const PalmTree = ({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) => {
-  const trunkMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#8b7355"),
-    roughness: 0.95,
-    metalness: 0,
-  }), []);
-
-  const leafMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#3d6b4a"),
-    roughness: 0.7,
-    metalness: 0,
-    side: THREE.DoubleSide,
-  }), []);
-
-  return (
-    <group position={position} scale={scale}>
-      {/* Trunk */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.08, 0.12, 1.2, 8]} />
-        <primitive object={trunkMaterial} attach="material" />
-      </mesh>
-      {/* Palm leaves */}
-      {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-        <mesh 
-          key={i} 
-          position={[0, 1.2, 0]} 
-          rotation={[0.5, THREE.MathUtils.degToRad(angle), 0]}
+        {/* Main Building */}
+        <RoundedBox
+          args={[2.2, 3.2, 1.6]}
+          radius={0.08}
+          smoothness={6}
+          position={[0, 0, 0]}
+          castShadow
         >
-          <boxGeometry args={[0.08, 0.02, 0.6]} />
-          <primitive object={leafMaterial} attach="material" />
-        </mesh>
-      ))}
-    </group>
-  );
-};
+      <meshPhysicalMaterial
+  color="#C3B07A"
+  metalness={0.9}
+  roughness={0.15}
+  clearcoat={0.6}
+  clearcoatRoughness={0.05}
+/>
 
-// Car Component
-const Car = ({ position, rotation = 0, color = "#2c3e50" }: { position: [number, number, number]; rotation?: number; color?: string }) => {
-  const bodyMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color(color),
-    roughness: 0.3,
-    metalness: 0.8,
-  }), [color]);
+        </RoundedBox>
 
-  const glassMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color("#1a3a4a"),
-    metalness: 0.1,
-    roughness: 0.1,
-    transmission: 0.8,
-    thickness: 0.2,
-  }), []);
+        {/* Front Accent Panel */}
+        <RoundedBox
+          args={[1.8, 2.8, 0.15]}
+          radius={0.05}
+          smoothness={4}
+          position={[0, 0.1, 0.85]}
+        >
+          <meshStandardMaterial
+            color="#C3B07A"
+            metalness={0.8}
+            roughness={0.25}
+          />
+        </RoundedBox>
 
-  const wheelMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#1a1a1a"),
-    roughness: 0.9,
-    metalness: 0.1,
-  }), []);
-
-  return (
-    <group position={position} rotation={[0, THREE.MathUtils.degToRad(rotation), 0]} scale={0.25}>
-      {/* Car body */}
-      <mesh position={[0, 0.15, 0]}>
-        <boxGeometry args={[0.9, 0.2, 0.4]} />
-        <primitive object={bodyMaterial} attach="material" />
-      </mesh>
-      {/* Cabin */}
-      <mesh position={[0.05, 0.32, 0]}>
-        <boxGeometry args={[0.5, 0.18, 0.36]} />
-        <primitive object={glassMaterial} attach="material" />
-      </mesh>
-      {/* Wheels */}
-      {[
-        [-0.28, 0.08, 0.2],
-        [-0.28, 0.08, -0.2],
-        [0.28, 0.08, 0.2],
-        [0.28, 0.08, -0.2],
-      ].map((pos, i) => (
-        <mesh key={i} position={pos as [number, number, number]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 0.05, 12]} />
-          <primitive object={wheelMaterial} attach="material" />
-        </mesh>
-      ))}
-      {/* Headlights */}
-      <mesh position={[-0.45, 0.15, 0.12]}>
-        <boxGeometry args={[0.02, 0.06, 0.08]} />
-        <meshStandardMaterial color="#ffffcc" emissive="#ffff88" emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[-0.45, 0.15, -0.12]}>
-        <boxGeometry args={[0.02, 0.06, 0.08]} />
-        <meshStandardMaterial color="#ffffcc" emissive="#ffff88" emissiveIntensity={0.3} />
-      </mesh>
-    </group>
-  );
-};
-
-// Street Lamp Component
-const StreetLamp = ({ position }: { position: [number, number, number] }) => {
-  const poleMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#3d3d3d"),
-    roughness: 0.6,
-    metalness: 0.4,
-  }), []);
-
-  return (
-    <group position={position}>
-      {/* Pole */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.03, 0.04, 1.2, 8]} />
-        <primitive object={poleMaterial} attach="material" />
-      </mesh>
-      {/* Lamp head */}
-      <mesh position={[0, 1.25, 0]}>
-        <sphereGeometry args={[0.08, 12, 12]} />
-        <meshStandardMaterial color="#fffde7" emissive="#fff59d" emissiveIntensity={0.5} />
-      </mesh>
-    </group>
-  );
-};
-
-// Bench Component
-const Bench = ({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) => {
-  const woodMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#6d4c41"),
-    roughness: 0.85,
-    metalness: 0,
-  }), []);
-
-  const metalMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#424242"),
-    roughness: 0.5,
-    metalness: 0.7,
-  }), []);
-
-  return (
-    <group position={position} rotation={[0, THREE.MathUtils.degToRad(rotation), 0]} scale={0.4}>
-      {/* Seat */}
-      <mesh position={[0, 0.2, 0]}>
-        <boxGeometry args={[0.6, 0.04, 0.2]} />
-        <primitive object={woodMaterial} attach="material" />
-      </mesh>
-      {/* Back */}
-      <mesh position={[0, 0.35, -0.08]} rotation={[0.2, 0, 0]}>
-        <boxGeometry args={[0.6, 0.2, 0.03]} />
-        <primitive object={woodMaterial} attach="material" />
-      </mesh>
-      {/* Legs */}
-      {[-0.25, 0.25].map((x, i) => (
-        <mesh key={i} position={[x, 0.1, 0]}>
-          <boxGeometry args={[0.04, 0.2, 0.2]} />
-          <primitive object={metalMaterial} attach="material" />
-        </mesh>
-      ))}
-    </group>
-  );
-};
-
-// Modern realistic building component
-const RealisticBuilding = () => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  // Slow gentle rotation
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.1) * 0.1;
-    }
-  });
-
-  // Materials
-  const glassMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color("#1a4a5e"),
-    metalness: 0.1,
-    roughness: 0.05,
-    transmission: 0.9,
-    thickness: 0.5,
-    envMapIntensity: 1,
-    clearcoat: 1,
-    clearcoatRoughness: 0.1,
-  }), []);
-
-  const concreteMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#e8e4de"),
-    roughness: 0.9,
-    metalness: 0.05,
-  }), []);
-
-  const darkConcreteMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#0F4F45"),
-    roughness: 0.7,
-    metalness: 0.1,
-  }), []);
-
-  const goldMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#C3B07A"),
-    roughness: 0.3,
-    metalness: 0.8,
-  }), []);
-
-  const frameMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#2d2d2d"),
-    roughness: 0.4,
-    metalness: 0.6,
-  }), []);
-
-  const roadMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#3a3a3a"),
-    roughness: 0.95,
-    metalness: 0,
-  }), []);
-
-  const sidewalkMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: new THREE.Color("#c9c5bd"),
-    roughness: 0.9,
-    metalness: 0,
-  }), []);
-
-  return (
-    <group ref={groupRef} position={[0, -1.5, 0]} scale={0.7}>
-      {/* Main Tower - Modern Glass Building */}
-      <group position={[0, 0, 0]}>
-        {/* Core structure */}
-        <mesh position={[0, 2.5, 0]}>
-          <boxGeometry args={[2.2, 5, 1.8]} />
-          <primitive object={darkConcreteMaterial} attach="material" />
-        </mesh>
-        
-        {/* Glass facade - front */}
-        <mesh position={[0, 2.5, 0.95]}>
-          <boxGeometry args={[2, 4.8, 0.05]} />
-          <primitive object={glassMaterial} attach="material" />
-        </mesh>
-        
-        {/* Glass facade - back */}
-        <mesh position={[0, 2.5, -0.95]}>
-          <boxGeometry args={[2, 4.8, 0.05]} />
-          <primitive object={glassMaterial} attach="material" />
-        </mesh>
-
-        {/* Window frames - horizontal */}
-        {[0.5, 1.5, 2.5, 3.5, 4.5].map((y, i) => (
-          <mesh key={`h-${i}`} position={[0, y, 0.97]}>
-            <boxGeometry args={[2.1, 0.05, 0.02]} />
-            <primitive object={frameMaterial} attach="material" />
-          </mesh>
+        {/* Windows */}
+        {[-0.8, -0.2, 0.4].map((y, i) => (
+          <RoundedBox
+            key={i}
+            args={[1.3, 0.35, 0.05]}
+            radius={0.03}
+            smoothness={4}
+            position={[0, y, 0.93]}
+          >
+            <meshStandardMaterial
+              color="#1E3F3A"
+              metalness={0.2}
+              roughness={0.1}
+              emissive="#3F7F73"
+              emissiveIntensity={0.4}
+            />
+          </RoundedBox>
         ))}
 
-        {/* Window frames - vertical */}
-        {[-0.6, 0, 0.6].map((x, i) => (
-          <mesh key={`v-${i}`} position={[x, 2.5, 0.97]}>
-            <boxGeometry args={[0.04, 4.9, 0.02]} />
-            <primitive object={frameMaterial} attach="material" />
-          </mesh>
-        ))}
+        {/* Side Tower */}
+        <RoundedBox
+          args={[0.85, 4.2, 0.85]}
+          radius={0.06}
+          smoothness={6}
+          position={[1.6, 0.5, 0]}
+          castShadow
+        >
+          <meshStandardMaterial
+            color="#2F6F65"
+            roughness={0.45}
+            metalness={0.5}
+          />
+        </RoundedBox>
 
-        {/* Top crown - gold accent */}
-        <mesh position={[0, 5.1, 0]}>
-          <boxGeometry args={[2.4, 0.2, 2]} />
-          <primitive object={goldMaterial} attach="material" />
-        </mesh>
+        {/* Tower Crown */}
+        <RoundedBox
+          args={[1, 0.25, 1]}
+          radius={0.08}
+          smoothness={6}
+          position={[1.6, 2.7, 0]}
+        >
+       <meshPhysicalMaterial
+  color="#C3B07A"
+  metalness={0.9}
+  roughness={0.15}
+  clearcoat={0.6}
+  clearcoatRoughness={0.05}
+/>
 
-        {/* Entrance canopy */}
-        <mesh position={[0, 0.3, 1.2]}>
-          <boxGeometry args={[1.5, 0.08, 0.6]} />
-          <primitive object={goldMaterial} attach="material" />
-        </mesh>
+        </RoundedBox>
 
-        {/* Entrance glass */}
-        <mesh position={[0, 0.4, 1]}>
-          <boxGeometry args={[0.8, 0.8, 0.03]} />
-          <primitive object={glassMaterial} attach="material" />
-        </mesh>
       </group>
-
-      {/* Secondary Tower - Shorter */}
-      <group position={[1.8, 0, 0.3]}>
-        <mesh position={[0, 1.75, 0]}>
-          <boxGeometry args={[1.4, 3.5, 1.2]} />
-          <primitive object={concreteMaterial} attach="material" />
-        </mesh>
-        
-        {/* Glass panels */}
-        <mesh position={[0, 1.75, 0.65]}>
-          <boxGeometry args={[1.2, 3.3, 0.03]} />
-          <primitive object={glassMaterial} attach="material" />
-        </mesh>
-
-        {/* Horizontal accent lines */}
-        {[0.8, 1.6, 2.4, 3.2].map((y, i) => (
-          <mesh key={i} position={[0, y, 0.67]}>
-            <boxGeometry args={[1.3, 0.04, 0.02]} />
-            <primitive object={goldMaterial} attach="material" />
-          </mesh>
-        ))}
-
-        {/* Top crown */}
-        <mesh position={[0, 3.6, 0]}>
-          <boxGeometry args={[1.5, 0.15, 1.3]} />
-          <primitive object={darkConcreteMaterial} attach="material" />
-        </mesh>
-      </group>
-
-      {/* Tertiary Structure - Podium */}
-      <group position={[-1.5, 0, 0.5]}>
-        <mesh position={[0, 0.6, 0]}>
-          <boxGeometry args={[1.6, 1.2, 1.4]} />
-          <primitive object={concreteMaterial} attach="material" />
-        </mesh>
-        
-        {/* Large glass window */}
-        <mesh position={[0, 0.6, 0.75]}>
-          <boxGeometry args={[1.3, 0.9, 0.03]} />
-          <primitive object={glassMaterial} attach="material" />
-        </mesh>
-
-        {/* Rooftop garden edge */}
-        <mesh position={[0, 1.25, 0]}>
-          <boxGeometry args={[1.7, 0.1, 1.5]} />
-          <primitive object={darkConcreteMaterial} attach="material" />
-        </mesh>
-      </group>
-
-      {/* Ground / Platform - Extended */}
-      <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[12, 10]} />
-        <meshStandardMaterial color="#7cb342" roughness={0.95} metalness={0} />
-      </mesh>
-
-      {/* Sidewalk around building */}
-      <mesh position={[0, 0, 2]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[6, 1.5]} />
-        <primitive object={sidewalkMaterial} attach="material" />
-      </mesh>
-
-      {/* Road */}
-      <mesh position={[0, 0.01, 3.2]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[10, 1.2]} />
-        <primitive object={roadMaterial} attach="material" />
-      </mesh>
-
-      {/* Road markings */}
-      {[-3, 0, 3].map((x, i) => (
-        <mesh key={i} position={[x, 0.02, 3.2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.8, 0.08]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-      ))}
-
-      {/* Trees */}
-      <Tree position={[-3, 0, 1.5]} scale={1.2} />
-      <Tree position={[-3.5, 0, 0.5]} scale={1} />
-      <Tree position={[3.2, 0, 1.2]} scale={1.1} />
-      <PalmTree position={[-2.5, 0, 2]} scale={1.3} />
-      <PalmTree position={[2.8, 0, 2.2]} scale={1.1} />
-      <Tree position={[3.8, 0, -0.5]} scale={0.9} />
-      <Tree position={[-3.8, 0, -0.8]} scale={1.15} />
-
-      {/* Cars on road */}
-      <Car position={[-1.5, 0, 3.2]} rotation={90} color="#c0392b" />
-      <Car position={[2, 0, 3.2]} rotation={-90} color="#2980b9" />
-      <Car position={[4, 0, 3.2]} rotation={-90} color="#1a1a1a" />
-
-      {/* Parked cars */}
-      <Car position={[-2.8, 0, 1.8]} rotation={0} color="#7f8c8d" />
-      <Car position={[3.5, 0, 1.8]} rotation={180} color="#f5f5f5" />
-
-      {/* Street lamps */}
-      <StreetLamp position={[-2, 0, 2.3]} />
-      <StreetLamp position={[2, 0, 2.3]} />
-      <StreetLamp position={[4.5, 0, 2.3]} />
-
-      {/* Benches */}
-      <Bench position={[-2.5, 0, 1.2]} rotation={45} />
-      <Bench position={[3, 0, 0.8]} rotation={-30} />
-    </group>
+    </Float>
   );
 };
+
+
 
 const Hero3D = () => {
   const features = [
@@ -442,20 +123,28 @@ const Hero3D = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4"
             >
-              ديموفا للمقاولات
+              ديموفا للمقاولات والتشطيبات
               <br />
-              <span className="text-secondary">والتشطيبات</span>
+              {/* <span className="text-secondary">والتشطيبات</span> */}
             </motion.h1>
 
-            <motion.p
+            {/* <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-xl md:text-2xl text-accent font-montserrat font-medium mb-6"
             >
               Built to Last. Finished to Impress.
+            </motion.p> */}
+                        <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-xl md:text-2xl text-accent font-montserrat font-medium mb-6"
+            >
+           صُممت لتدوم. أُنجزت لتُثير الإعجاب.
             </motion.p>
 
             <motion.p
@@ -516,43 +205,19 @@ const Hero3D = () => {
             transition={{ duration: 1, delay: 0.3 }}
             className="h-[400px] lg:h-[500px] order-1 lg:order-2"
           >
-            <Canvas 
-              camera={{ position: [6, 4, 8], fov: 35 }}
-              shadows
-              gl={{ antialias: true, alpha: true }}
-            >
-              <color attach="background" args={["#f8f7f4"]} />
-              <fog attach="fog" args={["#f8f7f4", 10, 30]} />
-              
-              {/* Lighting setup for realism */}
-              <ambientLight intensity={0.4} />
-              <directionalLight 
-                position={[10, 15, 10]} 
-                intensity={1.5} 
-                castShadow
-                shadow-mapSize={[2048, 2048]}
-              />
-              <directionalLight position={[-5, 10, -5]} intensity={0.3} color="#C3B07A" />
-              <pointLight position={[0, 10, 0]} intensity={0.5} color="#ffffff" />
-              
+            <Canvas camera={{ position: [5, 3, 5], fov: 45 }}>
+              <ambientLight intensity={0.5} />
+              <directionalLight position={[10, 10, 5]} intensity={1} />
+              <pointLight position={[-10, -10, -10]} intensity={0.5} color="#C3B07A" />
               <Suspense fallback={null}>
-                <RealisticBuilding />
-                <ContactShadows 
-                  position={[0, -1.55, 0]} 
-                  opacity={0.4} 
-                  scale={12} 
-                  blur={2.5} 
-                  far={4}
-                />
-                <Environment preset="city" />
+                <Building3D />
               </Suspense>
-              
               <OrbitControls
                 enableZoom={false}
                 enablePan={false}
                 autoRotate
-                autoRotateSpeed={0.5}
-                maxPolarAngle={Math.PI / 2.2}
+                autoRotateSpeed={1}
+                maxPolarAngle={Math.PI / 2}
                 minPolarAngle={Math.PI / 4}
               />
             </Canvas>
