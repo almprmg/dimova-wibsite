@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Phone, MessageCircle, MapPin, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { t } from "@/i18n/translations";
+import { t, getLang, setLang } from "@/i18n/translations";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -64,8 +64,12 @@ const Navbar = () => {
             <a href="#" className="flex items-center gap-3">
               <img src="/icon.png" alt={t("brand.name")} className="w-12 h-12 rounded-lg object-contain" />
               <div>
-                <h1 className="font-bold text-lg text-foreground">{t("brand.name")}</h1>
-                <p className="text-xs text-muted-foreground font-montserrat">Contracting & Fit-Out</p>
+                <h1 className="font-bold text-lg text-foreground">
+                  {t("brand.name")} | {t("brand.name", "en")}
+                </h1>
+                <p className="text-xs text-muted-foreground font-montserrat">
+                  {t("brand.descriptor")} | {t("brand.descriptor", "en")}
+                </p>
               </div>
             </a>
 
@@ -82,11 +86,22 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden lg:block">
+            {/* CTA + Lang Toggle */}
+            <div className="hidden lg:flex items-center gap-3">
               <a href="#contact" className="btn-accent">
                 {t("cta.quote")}
               </a>
+              <button
+                onClick={() => {
+                  const current = getLang();
+                  setLang(current === "ar" ? "en" : "ar");
+                  window.location.reload();
+                }}
+                className="btn-outline px-4 py-2"
+                aria-label="Toggle language"
+              >
+                ع/En
+              </button>
             </div>
 
             {/* Mobile Menu Toggle */}

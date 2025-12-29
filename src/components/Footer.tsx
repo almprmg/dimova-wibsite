@@ -15,11 +15,11 @@ const Footer = () => {
             <div className="flex items-center gap-3 mb-6">
               <img src="/icon.png" alt="Dimova Icon" className="w-12 h-12 rounded-lg object-contain" />
               <div>
-                <h3 className="font-bold text-lg">ديموفا</h3>
-                <p className="text-sm text-primary-foreground/70 font-montserrat">Contracting & Fit-Out</p>
+                <h3 className="font-bold text-lg">ديموفا | Dimova</h3>
+                <p className="text-sm text-primary-foreground/70 font-montserrat">المقاولات والتشطيبات </p>
               </div>
             </div>
-         
+            {/* <img src="/logo.png" alt="Dimova Logo" className="mt-2 w-40 md:w-48 h-auto" /> */}
             <p className="text-primary-foreground/70 max-w-md leading-relaxed">
               تنفيذ تشطيبات داخلية باحترافية، التزام بالمواعيد، وإشراف ميداني لضمان الجودة. 
               نبني لتدوم، ونُنهي لتُبهر.

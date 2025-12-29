@@ -5,6 +5,7 @@ const translations = {
     brand: {
       name: "ديموفا",
       tagline: "صُممت لتدوم. أُنجزت لتُثير الإعجاب.",
+      descriptor: "المقاولات والتشطيبات",
     },
     hero: {
       title: "ديموفا للمقاولات والتشطيبات",
@@ -36,6 +37,7 @@ const translations = {
     brand: {
       name: "Dimova",
       tagline: "Built to Last. Finished to Impress.",
+      descriptor: "Contracting & Fit-Out",
     },
     hero: {
       title: "Dimova Contracting & Fit-Out",
