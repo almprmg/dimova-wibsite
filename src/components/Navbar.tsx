@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Phone, MessageCircle, MapPin, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { t } from "@/i18n/translations";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,11 +16,11 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: "#services", label: "الخدمات" },
-    { href: "#projects", label: "المشاريع" },
-    { href: "#why-dimova", label: "لماذا ديموفا" },
-    { href: "#process", label: "منهجية العمل" },
-    { href: "#contact", label: "تواصل" },
+    { href: "#services", label: t("navbar.services") },
+    { href: "#projects", label: t("navbar.projects") },
+    { href: "#why-dimova", label: t("navbar.why") },
+    { href: "#process", label: t("navbar.process") },
+    { href: "#contact", label: t("navbar.contact") },
   ];
 
   return (
@@ -39,12 +40,12 @@ const Navbar = () => {
               className="flex items-center gap-2 hover:text-accent transition-colors"
             >
               <MessageCircle size={14} />
-              <span>واتساب</span>
+              <span>{t("cta.whatsapp")}</span>
             </a>
           </div>
           <div className="hidden md:flex items-center gap-2">
             <MapPin size={14} />
-            <span>الرياض، المملكة العربية السعودية</span>
+            <span>{t("navbar.location")}</span>
           </div>
         </div>
       </div>
@@ -65,7 +66,7 @@ const Navbar = () => {
                 <span className="text-primary-foreground font-bold text-xl font-montserrat">D</span>
               </div>
               <div>
-                <h1 className="font-bold text-lg text-foreground">ديموفا</h1>
+                <h1 className="font-bold text-lg text-foreground">{t("brand.name")}</h1>
                 <p className="text-xs text-muted-foreground font-montserrat">Contracting & Fit-Out</p>
               </div>
             </a>
@@ -86,7 +87,7 @@ const Navbar = () => {
             {/* CTA Button */}
             <div className="hidden lg:block">
               <a href="#contact" className="btn-accent">
-                اطلب عرض سعر
+                {t("cta.quote")}
               </a>
             </div>
 
