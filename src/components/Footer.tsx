@@ -13,14 +13,13 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-accent-foreground font-bold text-xl font-montserrat">D</span>
-              </div>
+              <img src="/icon.png" alt="Dimova Icon" className="w-12 h-12 rounded-lg object-contain" />
               <div>
                 <h3 className="font-bold text-lg">ديموفا</h3>
                 <p className="text-sm text-primary-foreground/70 font-montserrat">Contracting & Fit-Out</p>
               </div>
             </div>
+         
             <p className="text-primary-foreground/70 max-w-md leading-relaxed">
               تنفيذ تشطيبات داخلية باحترافية، التزام بالمواعيد، وإشراف ميداني لضمان الجودة. 
               نبني لتدوم، ونُنهي لتُبهر.
